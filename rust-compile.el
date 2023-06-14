@@ -48,9 +48,10 @@ matches on the file name (which appears after `-->`), but the
 start of the error appears a few lines earlier.  This hook runs
 after `next-error' (\\[next-error]); it simply scrolls down a few lines in
 the compilation window until the top of the error is visible."
-  (save-selected-window
-    (when (eq major-mode 'rust-mode)
-      (select-window (get-buffer-window next-error-last-buffer 'visible))
+  (when-let ((rust-p (eq major-mode 'rust-mode))
+             (window (get-buffer-window next-error-last-buffer 'visible)))
+    (save-selected-window
+      (select-window window)
       (when (save-excursion
               (beginning-of-line)
               (looking-at " *-->"))
@@ -60,7 +61,7 @@ the compilation window until the top of the error is visible."
                  (while (not (looking-at "^[a-z]+:\\|^[a-z]+\\[E[0-9]+\\]:"))
                    (forward-line -1))
                  (point))))
-          (set-window-start (selected-window) start-of-error))))))
+          (set-window-start window start-of-error))))))
 
 (eval-after-load 'compile
   '(progn
